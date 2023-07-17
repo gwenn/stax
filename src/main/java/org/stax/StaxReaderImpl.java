@@ -1,5 +1,6 @@
 package org.stax;
 
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
@@ -84,6 +85,10 @@ class StaxReaderImpl implements StaxReader, AutoCloseable {
 	@Override
 	public double getElementAsDouble() throws XMLStreamException {
 		return xsr.getElementAsDouble();
+	}
+	@Override
+	public BigDecimal getElementAsDecimal() throws XMLStreamException {
+		return xsr.getElementAsDecimal();
 	}
 	@Override
 	public String getAttributeValue(String localName) {

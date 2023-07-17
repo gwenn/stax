@@ -1,5 +1,6 @@
 package org.stax;
 
+import java.math.BigDecimal;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -49,6 +50,10 @@ public interface StaxReader {
 	 * See {@link XMLStreamReader2#getElementAsDouble()}
 	 */
 	double getElementAsDouble() throws XMLStreamException;
+	/**
+	 * See {@link XMLStreamReader2#getElementAsDecimal()}
+	 */
+	BigDecimal getElementAsDecimal() throws XMLStreamException;
 
 	/**
 	 * See {@link XMLStreamReader#getAttributeValue(String, String)}
