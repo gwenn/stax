@@ -30,7 +30,7 @@ class StaxReaderImpl implements StaxReader, AutoCloseable {
 			xsr.next();
 			if (xsr.isStartElement()) {
 				//noinspection unchecked
-				entry.handler.start(this, xsr.getLocalName(), entry.state);
+				entry.handler.start(entry.state, this, xsr.getLocalName());
 			} else if (xsr.isEndElement()) {
 				final int depth = xsr.getDepth();
 				if (entry.depth >= depth) {

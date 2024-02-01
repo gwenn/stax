@@ -10,10 +10,10 @@ public interface StaxHandler<S> {
 	/**
 	 * Receive notification of the start of an element.
 	 *
-	 * @param name XML element name
 	 * @param state associated state
+	 * @param name  XML element name
 	 */
-	void start(StaxReader sr, String name, S state) throws XMLStreamException;
+	void start(S state, StaxReader sr, String name) throws XMLStreamException;
 	/**
 	 * Receive notification of the end of the element associated to this current handler (when it was {@link StaxReader#push pushed}).
 	 *

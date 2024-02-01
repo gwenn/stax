@@ -20,22 +20,22 @@ public class StaxReaderImplTest {
 		try (InputStream is = this.getClass().getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food();
-			StaxReader.parse(xsr, (r, name, f) -> handleRootChildElement(f, r, name), food);
+			StaxReader.parse(xsr, this::handleRootChildElement, food);
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
 		}
 	}
 	private void handleRootChildElement(Food food, StaxReader sr, String name) {
 		if ("animals".equals(name)) {
-			sr.push((r, n, a) -> handleAnimals(a, r, n), food.animals);
+			sr.push(this::handleAnimals, food.animals);
 		} else if ("vegetables".equals(name)) {
-			sr.push((r, n, v) -> handleVegetables(v, r, n), food.vegetables);
+			sr.push(this::handleVegetables, food.vegetables);
 		}
 	}
 	private void handleVegetables(List<Vegetable> vegetables, StaxReader sr, String name) throws XMLStreamException {
 		if ("vegetable".equals(name)) {
 			Vegetable vegetable = new Vegetable();
-			sr.push((r, n, v) -> extractVegetable(v, r, n), vegetable);
+			sr.push(this::extractVegetable, vegetable);
 			vegetables.add(vegetable);
 		} else {
 			sr.skipElement();
@@ -45,7 +45,7 @@ public class StaxReaderImplTest {
 		if ("name".equals(name)) {
 			vegetable.name = sr.getElementText();
 		} else if ("preparations".equals(name)) {
-			sr.push((r, n, p) -> {
+			sr.push((p, r, n) -> {
 				assert "preparation".equals(n) : name;
 				p.add(r.getElementText());
 			}, vegetable.preparations);
@@ -55,12 +55,12 @@ public class StaxReaderImplTest {
 	private void handleAnimals(List<Animal> animals, StaxReader sr, String name) {
 		assert "animal".equals(name) : name;
 		Animal animal = new Animal(sr.getAttributeValue("name"));
-		sr.push((r, n, a) -> extractAnimal(a, r, n), animal);
+		sr.push(this::extractAnimal, animal);
 		animals.add(animal);
 	}
 	private void extractAnimal(Animal animal, StaxReader sr, String name) {
 		assert "meat".equals(name) : name;
-		sr.push((r, n, m) -> {
+		sr.push((m, r, n) -> {
 			assert "name".equals(n) : name;
 			m.add(new Meat(r.getElementText()));
 		}, animal.meats);
