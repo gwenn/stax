@@ -1,5 +1,6 @@
 package org.stax;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import javax.xml.stream.XMLInputFactory;
@@ -17,14 +18,20 @@ import static org.junit.Assert.assertEquals;
 public class StaxReaderImplTest {
 	@Test
 	public void parse() throws Exception {
+		load();
+	}
+
+	public Food load() throws IOException, XMLStreamException {
 		try (InputStream is = this.getClass().getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food();
 			StaxReader.parse(xsr, this::handleRootChildElement, food);
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
+			return food;
 		}
 	}
+
 	private void handleRootChildElement(Food food, StaxReader sr, String name) {
 		if ("animals".equals(name)) {
 			sr.push(this::handleAnimals, food.animals);
