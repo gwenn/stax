@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import org.codehaus.stax2.XMLStreamReader2;
@@ -105,6 +106,12 @@ class StaxReaderImpl implements StaxReader, AutoCloseable {
 	public boolean isEmptyElement() throws XMLStreamException {
 		return xsr.isEmptyElement();
 	}
+
+	@Override
+	public void require(String localName) throws XMLStreamException {
+		xsr.require(XMLStreamConstants.START_ELEMENT, null, localName);
+	}
+
 	@Override
 	public void close() throws XMLStreamException {
 		xsr.closeCompletely();

@@ -46,20 +46,20 @@ public class StaxReaderImplTest {
 			vegetable.name = sr.getElementText();
 		} else if ("preparations".equals(name)) {
 			sr.push((p, r, n) -> {
-				assert "preparation".equals(n) : name;
+				sr.require("preparation");
 				p.add(r.getElementText());
 			}, vegetable.preparations);
 		}
 	}
 
-	private void handleAnimals(List<Animal> animals, StaxReader sr, String name) {
-		assert "animal".equals(name) : name;
+	private void handleAnimals(List<Animal> animals, StaxReader sr, String name) throws XMLStreamException {
+		sr.require("animal");
 		Animal animal = new Animal(sr.getAttributeValue("name"));
 		sr.push(this::extractAnimal, animal);
 		animals.add(animal);
 	}
-	private void extractAnimal(Animal animal, StaxReader sr, String name) {
-		assert "meat".equals(name) : name;
+	private void extractAnimal(Animal animal, StaxReader sr, String name) throws XMLStreamException {
+		sr.require("meat");
 		sr.push((m, r, n) -> {
 			assert "name".equals(n) : name;
 			m.add(new Meat(r.getElementText()));
