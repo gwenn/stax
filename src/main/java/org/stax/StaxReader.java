@@ -13,18 +13,21 @@ public interface StaxReader {
 	/**
 	 * @param xsr     {@code (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(xml)}
 	 * @param handler root handler
+	 * @param state associated state
 	 */
-	static void parse(XMLStreamReader2 xsr, StaxHandler handler) throws XMLStreamException {
+	static <S> void parse(XMLStreamReader2 xsr, StaxHandler<S> handler, S state) throws XMLStreamException {
 		try (StaxReaderImpl sr = new StaxReaderImpl(xsr)) {
-			sr.parse(handler);
+			sr.parse(handler, state);
 		}
 	}
 
 	/**
 	 * Use {@code handler} to process descendants.
 	 * {@code handler} will be automatically popped when the current XML element ends.
+	 * @param handler children handler
+	 * @param state associated state
 	 */
-	void push(StaxHandler handler);
+	<S> void push(StaxHandler<S> handler, S state);
 
 	/**
 	 * See {@link XMLStreamReader#getElementText()}
@@ -68,4 +71,9 @@ public interface StaxReader {
 	 * See {@link XMLStreamReader2#isEmptyElement()}
 	 */
 	boolean isEmptyElement() throws XMLStreamException;
+
+	/**
+	 * See {@link XMLStreamReader#require(int, String, String)}
+	 */
+	void require(/*int type, String namespaceURI, */String localName) throws XMLStreamException;
 }
