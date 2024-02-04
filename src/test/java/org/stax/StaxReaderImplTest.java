@@ -21,7 +21,7 @@ public class StaxReaderImplTest {
 		load();
 	}
 
-	public Food load() throws IOException, XMLStreamException {
+	Food load() throws IOException, XMLStreamException {
 		try (InputStream is = this.getClass().getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food();

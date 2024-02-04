@@ -12,13 +12,10 @@ public class StaxWriter implements AutoCloseable {
         this.xsw = xsw;
     }
 
-    public void writeStartDocument()
-            throws XMLStreamException {
+    public void writeStartDocument() throws XMLStreamException {
         xsw.writeStartDocument();
     }
-    public void writeStartDocument(String version, String encoding,
-                                   boolean standAlone)
-            throws XMLStreamException {
+    public void writeStartDocument(String version, String encoding, boolean standAlone) throws XMLStreamException {
         xsw.writeStartDocument(version, encoding, standAlone);
     }
 /*
@@ -28,14 +25,11 @@ public class StaxWriter implements AutoCloseable {
         return xsw::writeEndElement;
     }
 */
-    public void writeStartElement(String localName)
-            throws XMLStreamException {
+    public void writeStartElement(String localName) throws XMLStreamException {
         xsw.writeStartElement(localName);
     }
 
-    public void writeAttribute(String localName,
-                               String value)
-            throws XMLStreamException {
+    public void writeAttribute(String localName, String value) throws XMLStreamException {
         xsw.writeAttribute(localName, value);
     }
 
@@ -89,8 +83,7 @@ public class StaxWriter implements AutoCloseable {
         }
     }
 
-    public void writeEndElement()
-            throws XMLStreamException {
+    public void writeEndElement() throws XMLStreamException {
         xsw.writeEndElement();
     }
 
@@ -98,6 +91,10 @@ public class StaxWriter implements AutoCloseable {
         xsw.writeStartElement(localName);
         callback.x();
         xsw.writeEndElement();
+    }
+
+    public void writeComment(String data) throws XMLStreamException {
+        xsw.writeComment(data);
     }
 
     @Override
