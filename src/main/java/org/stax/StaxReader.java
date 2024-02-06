@@ -68,4 +68,9 @@ public interface StaxReader {
 	 * See {@link XMLStreamReader2#isEmptyElement()}
 	 */
 	boolean isEmptyElement() throws XMLStreamException;
+
+	/**
+	 * See {@link XMLStreamReader#require(int, String, String)}
+	 */
+	void require(/*int type, String namespaceURI, */String localName) throws XMLStreamException;
 }

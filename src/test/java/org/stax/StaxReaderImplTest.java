@@ -27,7 +27,7 @@ public class StaxReaderImplTest {
 	}
 	private void handleRootChildElement(Food food, StaxReader sr, String name) {
 		if ("animals".equals(name)) {
-			sr.push((r, n) -> handleAnimals(food.animals, r, n));
+			sr.push((r, n) -> handleAnimals(food.animals, r));
 		} else if ("vegetables".equals(name)) {
 			sr.push((r, n) -> handleVegetables(food.vegetables, r, n));
 		}
@@ -46,22 +46,22 @@ public class StaxReaderImplTest {
 			vegetable.name = sr.getElementText();
 		} else if ("preparations".equals(name)) {
 			sr.push((r, n) -> {
-				assert "preparation".equals(n) : name;
+				sr.require("preparation");
 				vegetable.preparations.add(r.getElementText());
 			});
 		}
 	}
 
-	private void handleAnimals(List<Animal> animals, StaxReader sr, String name) {
-		assert "animal".equals(name) : name;
+	private void handleAnimals(List<Animal> animals, StaxReader sr) throws XMLStreamException {
+		sr.require("animal");
 		Animal animal = new Animal(sr.getAttributeValue("name"));
-		sr.push((r, n) -> extractAnimal(animal, r, n));
+		sr.push((r, n) -> extractAnimal(animal, r));
 		animals.add(animal);
 	}
-	private void extractAnimal(Animal animal, StaxReader sr, String name) {
-		assert "meat".equals(name) : name;
+	private void extractAnimal(Animal animal, StaxReader sr) throws XMLStreamException {
+		sr.require("meat");
 		sr.push((r, n) -> {
-			assert "name".equals(n) : name;
+			sr.require("name");
 			animal.meats.add(new Meat(r.getElementText()));
 		});
 	}
