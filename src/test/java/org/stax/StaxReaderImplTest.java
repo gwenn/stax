@@ -19,7 +19,7 @@ public class StaxReaderImplTest {
 	public void parse() throws Exception {
 		try (InputStream is = this.getClass().getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
-			Food food = new Food();
+			Food food = new Food(); // ~ created even if there is no <deliciousFoods/>
 			StaxReader.parse(xsr, (r, name) -> handleRootChildElement(food, r, name));
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
@@ -36,7 +36,7 @@ public class StaxReaderImplTest {
 		if ("vegetable".equals(name)) {
 			Vegetable vegetable = new Vegetable();
 			sr.push((r, n) -> extractVegetable(vegetable, r, n));
-			vegetables.add(vegetable);
+			vegetables.add(vegetable); // ~ added before being fully parsed (no name yet). A verbose workaround is to use StaxHandler#end
 		} else {
 			sr.skipElement();
 		}
@@ -56,7 +56,7 @@ public class StaxReaderImplTest {
 		sr.require("animal");
 		Animal animal = new Animal(sr.getAttributeValue("name"));
 		sr.push((r, n) -> extractAnimal(animal, r));
-		animals.add(animal);
+		animals.add(animal); // ~ added before being fully parsed
 	}
 	private void extractAnimal(Animal animal, StaxReader sr) throws XMLStreamException {
 		sr.require("meat");

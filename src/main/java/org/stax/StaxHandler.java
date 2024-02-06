@@ -8,6 +8,21 @@ import javax.xml.stream.XMLStreamException;
 @FunctionalInterface
 public interface StaxHandler {
 	/**
+	 * @param expected element(s) name
+	 * @param child handler for element descendants
+	 * @return simple handler
+	 */
+	static StaxHandler pushOrSkip(String expected, StaxHandler child) {
+		return (sr, name) -> {
+			if (expected.equals(name)) {
+				sr.push(child);
+			} else {
+				sr.skipElement();
+			}
+		};
+	}
+
+	/**
 	 * Receive notification of the start of an element.
 	 *
 	 * @param name XML element name
