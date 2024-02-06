@@ -89,6 +89,9 @@ class StaxReaderImpl implements StaxReader, AutoCloseable {
 	}
 	@Override
 	public BigDecimal getElementAsDecimal() throws XMLStreamException {
+		if (xsr.isEmptyElement()) { // TODO Validate
+			return null;
+		}
 		return xsr.getElementAsDecimal();
 	}
 	@Override

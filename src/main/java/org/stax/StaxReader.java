@@ -28,6 +28,7 @@ public interface StaxReader {
 
 	/**
 	 * See {@link XMLStreamReader#getElementText()}
+	 * @return {@code null} when element is empty
 	 */
 	String getElementText() throws XMLStreamException;
 	/**
@@ -52,6 +53,7 @@ public interface StaxReader {
 	double getElementAsDouble() throws XMLStreamException;
 	/**
 	 * See {@link XMLStreamReader2#getElementAsDecimal()}
+	 * @return {@code null} when element is empty
 	 */
 	BigDecimal getElementAsDecimal() throws XMLStreamException;
 
