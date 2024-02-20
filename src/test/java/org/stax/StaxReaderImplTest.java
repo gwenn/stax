@@ -1,5 +1,6 @@
 package org.stax;
 
+import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -17,28 +18,34 @@ import static org.stax.StaxHandler.stateful;
 public class StaxReaderImplTest {
 	@Test
 	public void parse() throws Exception {
-		try (InputStream is = this.getClass().getResourceAsStream("/sample.xml")) {
+		load();
+	}
+
+	static Food load() throws IOException, XMLStreamException {
+		try (InputStream is = StaxReaderImplTest.class.getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food(); // ~ created even if there is no <deliciousFoods/>
 			StaxReader.parse(xsr, (r, name) -> handleRootChildElement(food, r, name));
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
+			return food;
 		}
 	}
-	private void handleRootChildElement(Food food, StaxReader sr, String name) {
+
+	static void handleRootChildElement(Food food, StaxReader sr, String name) {
 		if ("animals".equals(name)) {
 			sr.push(stateful((r, n) -> {
 				sr.require("animal");
 				return new Animal(sr.getAttributeValue("name"));
-			}, this::extractAnimal, food.animals::add));
+			}, StaxReaderImplTest::extractAnimal, food.animals::add));
 		} else if ("vegetables".equals(name)) {
 			sr.push(stateful((r, n) -> {
 				sr.require("vegetable");
 				return new Vegetable();
-			}, this::extractVegetable, food.vegetables::add));
+			}, StaxReaderImplTest::extractVegetable, food.vegetables::add));
 		}
 	}
-	private void extractVegetable(Vegetable vegetable, StaxReader sr, String name) throws XMLStreamException {
+	private static void extractVegetable(Vegetable vegetable, StaxReader sr, String name) throws XMLStreamException {
 		if ("name".equals(name)) {
 			vegetable.name = sr.getElementText();
 		} else if ("preparations".equals(name)) {
@@ -48,7 +55,7 @@ public class StaxReaderImplTest {
 			});
 		}
 	}
-	private void extractAnimal(Animal animal, StaxReader sr, String name) throws XMLStreamException {
+	private static void extractAnimal(Animal animal, StaxReader sr, String name) throws XMLStreamException {
 		sr.require("meat");
 		sr.push((r, n) -> {
 			sr.require("name");
