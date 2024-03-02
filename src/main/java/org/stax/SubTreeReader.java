@@ -15,7 +15,7 @@ public class SubTreeReader implements AutoCloseable {
     private boolean eos = false; // end of stream / tree
 
     public SubTreeReader(XMLStreamReader2 xsr) throws XMLStreamException {
-        final int eventType = xsr.getEventType();
+        int eventType = xsr.getEventType();
         if (eventType != START_ELEMENT && eventType != START_DOCUMENT) {
             throw new XMLStreamException("parser must be on START_ELEMENT to read sub tree", xsr.getLocation());
         }
@@ -34,7 +34,7 @@ public class SubTreeReader implements AutoCloseable {
         if (eos) {
             throw new NoSuchElementException();
         }
-        final int type = xsr.next();
+        int type = xsr.next();
         checkEos(type);
         return type;
     }

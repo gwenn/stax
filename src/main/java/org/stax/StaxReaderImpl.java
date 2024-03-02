@@ -31,9 +31,9 @@ class StaxReaderImpl implements StaxReader, AutoCloseable {
 			if (xsr.isStartElement()) {
 				entry.handler.start(this, xsr.getLocalName());
 			} else if (xsr.isEndElement()) {
-				final int depth = xsr.getDepth();
+				int depth = xsr.getDepth();
 				if (entry.depth >= depth) {
-					final String name = xsr.getLocalName();
+					String name = xsr.getLocalName();
 					assert entry.depth == depth : "expected depth: " + entry.depth + " but got: " + depth;
 					assert entry.name.equals(name) : "expected name: '" + entry.name + "' but got: '" + name + "'";
 					if (entry.handler.end()) {

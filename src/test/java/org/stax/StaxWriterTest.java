@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class StaxWriterTest {
     @Test
     public void write() throws Exception {
-        final Food food = StaxReaderImplTest.load();
+        Food food = StaxReaderImplTest.load();
         try (StringWriter out = new StringWriter();
              StaxWriter sw = new StaxWriter((XMLStreamWriter2) XMLOutputFactory.newInstance().createXMLStreamWriter(out))
         ) {

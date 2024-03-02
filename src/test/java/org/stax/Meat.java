@@ -1,6 +1,6 @@
 package org.stax;
 
-final class Meat {
+class Meat {
 	final String name;
 
 	Meat(String name) {
