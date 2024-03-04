@@ -31,6 +31,12 @@ public interface StaxHandler {
 			}
 		};
 	}
+	static StaxHandler require(String expected, StaxHandler child) {
+		return ((sr, name) -> {
+			sr.require(expected);
+			sr.push(child);
+		});
+	}
 
 	/**
 	 * See {@link #stateful(StatefulInitializer, StatefulHandler, Consumer)}

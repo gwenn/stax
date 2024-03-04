@@ -9,6 +9,7 @@ import org.codehaus.stax2.XMLStreamReader2;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.stax.StaxHandler.require;
 import static org.stax.StaxHandler.stateful;
 
 /**
@@ -25,7 +26,7 @@ public class StaxReaderImplTest {
 		try (InputStream is = StaxReaderImplTest.class.getResourceAsStream("/sample.xml")) {
 			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food(); // ~ created even if there is no <deliciousFoods/>
-			StaxReader.parse(xsr, (r, name) -> handleRootChildElement(food, r, name));
+			StaxReader.parse(xsr, require("deliciousFoods", (r, name) -> handleRootChildElement(food, r, name)));
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
 			return food;
