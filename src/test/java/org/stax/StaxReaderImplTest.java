@@ -2,10 +2,9 @@ package org.stax;
 
 import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.stream.StreamSource;
 
-import org.codehaus.stax2.XMLStreamReader2;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,9 +23,8 @@ public class StaxReaderImplTest {
 
 	static Food load() throws IOException, XMLStreamException {
 		try (InputStream is = StaxReaderImplTest.class.getResourceAsStream("/sample.xml")) {
-			XMLStreamReader2 xsr = (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(is);
 			Food food = new Food(); // ~ created even if there is no <deliciousFoods/>
-			StaxReader.parse(xsr, require("deliciousFoods", (r, name) -> handleRootChildElement(food, r, name)));
+			StaxReader.parse(new StreamSource(is), require("deliciousFoods", (r, name) -> handleRootChildElement(food, r, name)));
 			assertEquals(3, food.animals.size());
 			assertEquals(3, food.vegetables.size());
 			return food;

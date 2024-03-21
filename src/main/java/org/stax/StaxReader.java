@@ -1,8 +1,10 @@
 package org.stax;
 
 import java.math.BigDecimal;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.Source;
 
 import org.codehaus.stax2.XMLStreamReader2;
 
@@ -10,6 +12,13 @@ import org.codehaus.stax2.XMLStreamReader2;
  * {@link XMLStreamReader2} + stack of {@link StaxHandler}
  */
 public interface StaxReader {
+	/**
+	 * @param src like {@code new StreamSource(Paths.get(...).toFile())}
+	 * @param handler root handler
+	 */
+	static void parse(Source src, StaxHandler handler) throws XMLStreamException {
+		parse((XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(src), handler);
+	}
 	/**
 	 * @param xsr     {@code (XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(xml)}
 	 * @param handler root handler

@@ -4,8 +4,10 @@ import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 import org.codehaus.stax2.typed.TypedXMLStreamWriter;
 
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
 import java.math.BigDecimal;
 
 /**
@@ -16,6 +18,13 @@ import java.math.BigDecimal;
  */
 public class StaxWriter implements AutoCloseable {
     private final XMLStreamWriter2 xsw;
+
+    /**
+     * @param result like {@code new StreamResult(Paths.get(...).toFile()}
+     */
+    public static StaxWriter from(Result result) throws XMLStreamException {
+        return new StaxWriter((XMLStreamWriter2) XMLOutputFactory.newInstance().createXMLStreamWriter(result));
+    }
 
     public StaxWriter(XMLStreamWriter2 xsw) {
         this.xsw = xsw;

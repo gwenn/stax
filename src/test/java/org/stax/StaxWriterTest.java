@@ -1,9 +1,8 @@
 package org.stax;
 
-import org.codehaus.stax2.XMLStreamWriter2;
 import org.junit.Test;
 
-import javax.xml.stream.XMLOutputFactory;
+import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertTrue;
@@ -13,7 +12,7 @@ public class StaxWriterTest {
     public void write() throws Exception {
         Food food = StaxReaderImplTest.load();
         try (StringWriter out = new StringWriter();
-             StaxWriter sw = new StaxWriter((XMLStreamWriter2) XMLOutputFactory.newInstance().createXMLStreamWriter(out))
+             StaxWriter sw = StaxWriter.from(new StreamResult(out))
         ) {
             sw.writeStartDocument();
             sw.subTree("deliciousFoods", () -> {
