@@ -8,8 +8,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.stax.StaxHandler.require;
-import static org.stax.StaxHandler.stateful;
+import static org.stax.StaxHandler.*;
 
 /**
  * Adapted from <a href="http://blog.palominolabs.com/2013/03/06/parsing-xml-with-java-and-staxmate/">Practical XML Parsing With Java and StaxMate</a>
@@ -38,10 +37,7 @@ public class StaxReaderImplTest {
 				return new Animal(sr.getAttributeValue("name"));
 			}, StaxReaderImplTest::extractAnimal, food.animals::add));
 		} else if ("vegetables".equals(name)) {
-			sr.push(stateful((r, n) -> {
-				sr.require("vegetable");
-				return new Vegetable();
-			}, StaxReaderImplTest::extractVegetable, food.vegetables::add));
+			sr.push(stateful("vegetable", Vegetable::new, StaxReaderImplTest::extractVegetable, food.vegetables::add));
 		}
 	}
 	private static void extractVegetable(Vegetable vegetable, StaxReader sr, String name) throws XMLStreamException {

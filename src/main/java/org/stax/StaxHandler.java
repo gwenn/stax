@@ -2,6 +2,7 @@ package org.stax;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Like SAX event {@link org.xml.sax.ContentHandler handler} but for StAX.
@@ -32,10 +33,10 @@ public interface StaxHandler {
 		};
 	}
 	static StaxHandler require(String expected, StaxHandler child) {
-		return ((sr, name) -> {
+		return (sr, name) -> {
 			sr.require(expected);
 			sr.push(child);
-		});
+		};
 	}
 
 	/**
@@ -49,6 +50,10 @@ public interface StaxHandler {
 	 */
 	interface StatefulHandler<S> {
 		void start(S state, StaxReader sr, String name) throws XMLStreamException;
+	}
+
+	static <S> StaxHandler stateful(String expected, Supplier<S> init, StatefulHandler<S> handler, Consumer<S> end) {
+		return stateful((sr, name) -> {sr.require(expected); return init.get();}, handler, end);
 	}
 
 	/**
