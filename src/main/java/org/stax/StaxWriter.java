@@ -9,6 +9,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import java.math.BigDecimal;
+import java.util.Arrays;
+
+import static java.lang.Math.min;
 
 /**
  * Convenient wrapper around a {@link XMLStreamWriter2}.
@@ -17,7 +20,14 @@ import java.math.BigDecimal;
  * Or for textual element, {@link #writeElement(String, String)} should be used.
  */
 public class StaxWriter implements AutoCloseable {
+    private static final char[] SPACES = new char[64];
+    static {
+        Arrays.fill(SPACES, ' ');
+    }
     private final XMLStreamWriter2 xsw;
+    private boolean pretty;
+    private int depth;
+    private boolean startElement;
 
     /**
      * @param result like {@code new StreamResult(Paths.get(...).toFile()}
@@ -35,15 +45,26 @@ public class StaxWriter implements AutoCloseable {
      */
     public void writeStartDocument() throws XMLStreamException {
         xsw.writeStartDocument();
+        if (pretty) {
+            xsw.writeSpace("\n");
+        }
     }
     /**
      * {@link XMLStreamWriter2#writeStartDocument(String, String, boolean)}
      */
     public void writeStartDocument(String version, String encoding, boolean standAlone) throws XMLStreamException {
         xsw.writeStartDocument(version, encoding, standAlone);
+        if (pretty) {
+            xsw.writeSpace("\n");
+        }
     }
 
     private void writeStartElement(String localName) throws XMLStreamException {
+        if (pretty && depth > 0) {
+            indent();
+        }
+        startElement = true;
+        ++depth;
         xsw.writeStartElement(localName);
     }
 
@@ -66,11 +87,11 @@ public class StaxWriter implements AutoCloseable {
      */
     public void writeElement(String localName, String text) throws XMLStreamException {
         if (text == null) {
-            xsw.writeEmptyElement(localName);
+            writeEmptyElement(localName);
         } else {
-            xsw.writeStartElement(localName);
+            writeStartElement(localName);
             xsw.writeCharacters(text);
-            xsw.writeEndElement();
+            writeEndElement();
         }
     }
 
@@ -78,45 +99,45 @@ public class StaxWriter implements AutoCloseable {
      * Auto-wrap {@link TypedXMLStreamWriter#writeBoolean(boolean)}
      */
     public void writeElement(String localName, boolean value) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         xsw.writeBoolean(value);
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
      * Auto-wrap {@link TypedXMLStreamWriter#writeInt(int)}
      */
     public void writeElement(String localName, int value) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         xsw.writeInt(value);
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
      * Auto-wrap {@link TypedXMLStreamWriter#writeLong(long)}
      */
     public void writeElement(String localName, long value) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         xsw.writeLong(value);
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
      * Auto-wrap {@link TypedXMLStreamWriter#writeFloat(float)}
      */
     public void writeElement(String localName, float value) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         xsw.writeFloat(value);
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
      * Auto-wrap {@link TypedXMLStreamWriter#writeDouble(double)}
      */
     public void writeElement(String localName, double value) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         xsw.writeDouble(value);
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
@@ -124,11 +145,11 @@ public class StaxWriter implements AutoCloseable {
      */
     public void writeElement(String localName, BigDecimal value) throws XMLStreamException {
         if (value == null) {
-            xsw.writeEmptyElement(localName);
+            writeEmptyElement(localName);
         } else {
-            xsw.writeStartElement(localName);
+            writeStartElement(localName);
             xsw.writeDecimal(value);
-            xsw.writeEndElement();
+            writeEndElement();
         }
     }
 
@@ -136,10 +157,19 @@ public class StaxWriter implements AutoCloseable {
      * {@link XMLStreamWriter#writeEmptyElement(String)}
      */
     public void writeEmptyElement(String localName) throws XMLStreamException {
+        if (pretty) {
+            indent();
+        }
         xsw.writeEmptyElement(localName);
     }
 
     private void writeEndElement() throws XMLStreamException {
+        --depth;
+        if (startElement) { // simple element (no child)
+            startElement = false;
+        } else if (pretty) {
+            indent();
+        }
         xsw.writeEndElement();
     }
 
@@ -151,9 +181,9 @@ public class StaxWriter implements AutoCloseable {
      * }</pre>
      */
     public void subTree(String localName, Callback callback) throws XMLStreamException {
-        xsw.writeStartElement(localName);
+        writeStartElement(localName);
         callback.write();
-        xsw.writeEndElement();
+        writeEndElement();
     }
 
     /**
@@ -190,5 +220,13 @@ public class StaxWriter implements AutoCloseable {
      */
     public interface Callback {
         void write() throws XMLStreamException;
+    }
+
+    public void pretty(boolean pretty) {
+        this.pretty = pretty;
+    }
+    private void indent() throws XMLStreamException {
+        xsw.writeSpace("\n");
+        xsw.writeRaw(SPACES, 0, min(depth*2, SPACES.length));
     }
 }
