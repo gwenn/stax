@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static java.lang.Math.min;
 
@@ -162,6 +163,18 @@ public class StaxWriter implements AutoCloseable {
         }
         xsw.writeEmptyElement(localName);
     }
+    public void writeEmptyElement(String localName, String... attrs) throws XMLStreamException {
+        if (pretty) {
+            indent();
+        }
+        xsw.writeStartElement(localName);
+        assert attrs.length % 2 == 0;
+        final Iterator<String> it = Arrays.asList(attrs).iterator();
+        while (it.hasNext()) {
+            xsw.writeAttribute(it.next(), it.next());
+        }
+        xsw.writeEndElement();
+    }
 
     private void writeEndElement() throws XMLStreamException {
         --depth;
@@ -182,6 +195,36 @@ public class StaxWriter implements AutoCloseable {
      */
     public void subTree(String localName, Callback callback) throws XMLStreamException {
         writeStartElement(localName);
+        callback.write();
+        writeEndElement();
+    }
+
+    /**
+     * <pre>{@code
+     * writeStartElement(eltName);
+     * writeAttribute(attrName, attrValue);
+     * callback.write();
+     * writeEndElement();
+     * }</pre>
+     */
+    public void subTree(String eltName, String attrName, String attrValue, Callback callback) throws XMLStreamException {
+        writeStartElement(eltName);
+        writeAttribute(attrName, attrValue);
+        callback.write();
+        writeEndElement();
+    }
+
+    /**
+     * <pre>{@code
+     * writeStartElement(eltName);
+     * writeAttribute(attrName, attrValue);
+     * callback.write();
+     * writeEndElement();
+     * }</pre>
+     */
+    public void subTree(String eltName, String attrName, int attrValue, Callback callback) throws XMLStreamException {
+        writeStartElement(eltName);
+        writeAttribute(attrName, attrValue);
         callback.write();
         writeEndElement();
     }
