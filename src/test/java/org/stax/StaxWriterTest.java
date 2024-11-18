@@ -18,8 +18,8 @@ public class StaxWriterTest {
             sw.subTree("deliciousFoods", () -> {
                 sw.subTree("animals", () -> {
                     for (Animal a : food.animals) {
-                        sw.subTree("animal", () -> {
-                            sw.writeAttribute("name", a.name);
+                        sw.subTree("animal",
+                                ac -> ac.writeAttribute("name", a.name), () -> {
                             for (Meat m : a.meats) {
                                 sw.subTree("meat", () -> sw.writeElement("name", m.name));
                             }

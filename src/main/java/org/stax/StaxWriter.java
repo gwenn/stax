@@ -10,7 +10,6 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Iterator;
 
 import static java.lang.Math.min;
 
@@ -26,6 +25,7 @@ public class StaxWriter implements AutoCloseable {
         Arrays.fill(SPACES, ' ');
     }
     private final XMLStreamWriter2 xsw;
+    private final AttrWriter aw = new AttrWriter();
     private boolean pretty;
     private int depth;
     private boolean startElement;
@@ -67,20 +67,6 @@ public class StaxWriter implements AutoCloseable {
         startElement = true;
         ++depth;
         xsw.writeStartElement(localName);
-    }
-
-    /**
-     * {@link XMLStreamWriter#writeAttribute(String, String)}
-     */
-    public void writeAttribute(String localName, String value) throws XMLStreamException {
-        xsw.writeAttribute(localName, value);
-    }
-
-    /**
-     * {@link TypedXMLStreamWriter#writeIntAttribute(String, String, String, int)}
-     */
-    public void writeAttribute(String localName, int value) throws XMLStreamException {
-        xsw.writeIntAttribute(null, null, localName, value);
     }
 
     /**
@@ -163,17 +149,14 @@ public class StaxWriter implements AutoCloseable {
         }
         xsw.writeEmptyElement(localName);
     }
-    public void writeEmptyElement(String localName, String... attrs) throws XMLStreamException {
-        if (pretty) {
-            indent();
-        }
-        xsw.writeStartElement(localName);
-        assert attrs.length % 2 == 0;
-        final Iterator<String> it = Arrays.asList(attrs).iterator();
-        while (it.hasNext()) {
-            xsw.writeAttribute(it.next(), it.next());
-        }
-        xsw.writeEndElement();
+
+    /**
+     * Auto-wrap {@link TypedXMLStreamWriter#writeAttribute(String, String)}
+     */
+    public void writeElement(String localName, AttrCallback ac) throws XMLStreamException {
+        writeStartElement(localName);
+        ac.write(aw);
+        writeEndElement();
     }
 
     private void writeEndElement() throws XMLStreamException {
@@ -201,30 +184,15 @@ public class StaxWriter implements AutoCloseable {
 
     /**
      * <pre>{@code
-     * writeStartElement(eltName);
-     * writeAttribute(attrName, attrValue);
+     * writeStartElement(localName);
+     * ac.write(...);
      * callback.write();
      * writeEndElement();
      * }</pre>
      */
-    public void subTree(String eltName, String attrName, String attrValue, Callback callback) throws XMLStreamException {
-        writeStartElement(eltName);
-        writeAttribute(attrName, attrValue);
-        callback.write();
-        writeEndElement();
-    }
-
-    /**
-     * <pre>{@code
-     * writeStartElement(eltName);
-     * writeAttribute(attrName, attrValue);
-     * callback.write();
-     * writeEndElement();
-     * }</pre>
-     */
-    public void subTree(String eltName, String attrName, int attrValue, Callback callback) throws XMLStreamException {
-        writeStartElement(eltName);
-        writeAttribute(attrName, attrValue);
+    public void subTree(String localName, AttrCallback ac, Callback callback) throws XMLStreamException {
+        writeStartElement(localName);
+        ac.write(aw);
         callback.write();
         writeEndElement();
     }
@@ -271,5 +239,31 @@ public class StaxWriter implements AutoCloseable {
     private void indent() throws XMLStreamException {
         xsw.writeSpace("\n");
         xsw.writeRaw(SPACES, 0, min(depth*2, SPACES.length));
+    }
+
+    /**
+     * To generate attribute(s)
+     */
+    public interface AttrCallback {
+        void write(AttrWriter aw) throws XMLStreamException;
+    }
+
+    public class AttrWriter {
+        private AttrWriter() {
+        }
+
+        /**
+         * {@link XMLStreamWriter#writeAttribute(String, String)}
+         */
+        public void writeAttribute(String localName, String value) throws XMLStreamException {
+            xsw.writeAttribute(localName, value);
+        }
+
+        /**
+         * {@link TypedXMLStreamWriter#writeIntAttribute(String, String, String, int)}
+         */
+        public void writeAttribute(String localName, int value) throws XMLStreamException {
+            xsw.writeIntAttribute(null, null, localName, value);
+        }
     }
 }
