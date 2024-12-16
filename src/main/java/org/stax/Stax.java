@@ -3,8 +3,12 @@ package org.stax;
 import org.codehaus.stax2.XMLStreamReader2;
 import org.codehaus.stax2.XMLStreamWriter2;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public interface Stax {
     /**
@@ -31,6 +35,12 @@ public interface Stax {
                 xsw.copyEventFromReader(xsr, false);
             }
         });
+    }
+    static String compact(String xml) throws XMLStreamException {
+        StringWriter writer = new StringWriter();
+        compact((XMLStreamReader2) XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(xml))
+                , (XMLStreamWriter2) XMLOutputFactory.newInstance().createXMLStreamWriter(writer));
+        return writer.toString();
     }
 
     /**
